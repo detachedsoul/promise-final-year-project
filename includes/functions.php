@@ -53,3 +53,48 @@ function sendComplain() {
         echo "<div class='alert alert-info text-center'>Fill in this form to file your complain. Please be respectful in the things you say and do not send spam messages.</div>";
     }
 }
+
+function register() {
+    $conn = dbConnect();
+
+    if(isset($_POST['register'])) {
+        $fullName = ucwords($_POST['full-name']);
+        $email = strtolower($_POST['email']);
+        $password = $_POST['password'];
+
+        // Makes sure all fields are filled
+        $fields = [
+            $fullName,
+            $email,
+            $password,
+        ];
+        foreach ($fields as $field) {
+            if (empty($field)) {
+                return "<div class='alert alert-danger text-center' role='alert'>All fields are required!</div>";
+            }
+        }
+
+        // Makes sure email is valid
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return "<div class='alert alert-danger text-center' role='alert'>Invalid email address!</div>";
+        }
+
+        // Hash password
+        $password = password_hash($password, PASSWORD_DEFAULT);
+
+        $sql = "INSERT INTO users (`name`, `email`, `password`) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $fullName, $email, $password);
+        $stmt->execute();
+
+        if ($stmt) {
+            echo "<div class='alert text-bg-success text-center' role='alert'>Registration successful! You can now login.</div>";
+
+            header("Refresh: 3; login.php");
+        } else {
+            echo "<div class='alert alert-danger text-center' role='alert'>Registration failed! Please try again later.</div>";
+        }
+    } else {
+        echo "<div class='alert alert-info text-center'>Register to view complain.</div>";
+    }
+}
