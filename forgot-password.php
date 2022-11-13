@@ -3,12 +3,11 @@ $pageTitle = "Rivers State University Complaint Portal | Forgot Password";
 require_once("includes/functions.php");
 require_once("includes/Header.php");
 ?>
-<main class="form-container">
+<main class="form-container container pt-4 pb-4">
     <form method="POST">
         <img class="mb-4 text-center d-block mx-auto" src="assets/img/favicon.ico" alt="" width="72" height="57">
-        <h1 class="h3 mb-3 fw-normal text-center">
-            Reset Password
-        </h1>
+
+        <?= resetPassword() ?>
 
         <div class="mb-3">
             <label for="email" class="form-label">Email address</label>

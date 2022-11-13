@@ -144,3 +144,57 @@ function register() {
         echo "<div class='alert alert-info text-center'>Register to view complain.</div>";
     }
 }
+
+function resetPassword() {
+    $conn = dbConnect();
+
+    if (isset($_POST['reset-password'])) {
+        $email = strtolower($_POST['email']);
+
+        // Makes sure all fields are filled
+        $fields = [
+            $email,
+        ];
+        foreach ($fields as $field) {
+            if (empty($field)) {
+                return "<div class='alert alert-danger text-center' role='alert'>All fields are required!</div>";
+            }
+        }
+
+        $sql = "SELECT * FROM users WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_object();
+
+        if ($user) {
+            $password = bin2hex(random_bytes(5));
+
+            // Send an email to the user
+            $to = $email;
+            $subject = "Password Reset";
+            $message = "Your password has been reset. Use {$password} to login to your account. You can change this later in your dashboard.";
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type: text/html; charset=UTF-8" . "\r\n";
+            $headers .= "From: Exams and Records Unit <ojimahwisdom01@gmail.com>";
+
+            if (mail($to, $subject, $message, $headers)) {
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+                $sql = "UPDATE users SET `password` = ? WHERE email = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ss", $hashedPassword, $email);
+                $stmt->execute();
+
+                echo "<div class='alert text-bg-success text-center' role='alert'>Password reset successful! Check your email for your new password.</div>";
+            } else {
+                echo "<div class='alert alert-danger text-center' role='alert'>Password reset failed! Please try again later.</div>";
+            }
+        } else {
+            return "<div class='alert alert-danger text-center' role='alert'>Invalid email address!</div>";
+        }
+    } else {
+        echo "<div class='alert alert-info text-center'>Enter your email address to reset your password.</div>";
+    }
+}
