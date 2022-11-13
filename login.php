@@ -6,9 +6,7 @@ require_once("includes/Header.php");
 <main class="form-container container pt-4 pb-4">
     <form method="POST">
         <img class="mb-4 text-center d-block mx-auto" src="assets/img/favicon.ico" alt="" width="72" height="57">
-        <h1 class="h3 mb-3 fw-normal text-center">
-            Login
-        </h1>
+        <?= login() ?>
 
         <div class="mb-3">
             <label for="email" class="form-label">Email address</label>
