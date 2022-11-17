@@ -240,6 +240,7 @@ function setComplainAsResolved()
     if (isset($_POST['submit'])) {
         $complainID = $_GET['complain_id'];
         $finalRemarks = $_POST['remark'];
+        $date = date("jS F, Y");
 
         if (empty($finalRemarks)) {
             echo "<div class='alert alert-danger text-center' role='alert'>Please type in your final remarks</div>";
@@ -264,9 +265,9 @@ function setComplainAsResolved()
         $headers .= "From: Exams and Records Unit <ojimahwisdom01@gmail.com>";
 
         if (mail($to, $subject, $message, $headers)) {
-            $sql = "UPDATE complains SET `status` = 'resolved' WHERE id = ?";
+            $sql = "UPDATE complains SET `status` = 'resolved', resolved_date = ? WHERE id = ?";
             $stmt = $con->prepare($sql);
-            $stmt->bind_param("i", $complainID);
+            $stmt->bind_param("i", $complainID, $date);
             $stmt->execute();
 
             echo "<div class='alert text-bg-success text-center' role='alert'>Complain was successfully resolved!</div>";
@@ -556,6 +557,127 @@ function viewAllComplains()
                 ?>
             </tbody>
         </table>
+    </div>
+<?php
+}
+
+function viewResolvedComplainsDetails()
+{
+    if (!isset($_GET['id'])) {
+        header('Location: resolved-complains.php');
+    }
+
+    $con = dbConnect();
+    $id = $_GET['id'];
+
+    $sql = "SELECT * FROM complains WHERE id = ?";
+
+    $stmt = $con->prepare($sql);
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $complainDetails = $result->fetch_object();
+
+    if ($result->num_rows < 1) {
+        header('Location: resolved-complains.php');
+    }
+
+    if ($complainDetails->status !== 'resolved') {
+        header('Location: resolved-complains.php');
+    }
+?>
+    <div class="modal d-block position-static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Complain Details
+                    </h5>
+                </div>
+                <div class="modal-body row justify-content-between g-4">
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            ID
+                        </h3>
+                        <p>
+                            <?= $complainDetails->id ?>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            Full Name
+                        </h3>
+                        <p>
+                            <?= $complainDetails->full_name ?>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            Email
+                        </h3>
+                        <p>
+                            <?= $complainDetails->email ?>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            Matric No
+                        </h3>
+                        <p>
+                            <?= $complainDetails->matric_no ?>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            Date Filed
+                        </h3>
+                        <p>
+                            <?= $complainDetails->date ?>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            Complain Subject
+                        </h3>
+                        <p>
+                            <?= $complainDetails->complaint_subject ?>
+                        </p>
+                    </div>
+
+                    <div class="col-12">
+                        <h3 class="h6">
+                            Complain Details
+                        </h3>
+                        <p>
+                            <?= $complainDetails->complaint ?>
+                        </p>
+                    </div>
+
+                    <div class="col-12">
+                        <h3 class="h6">
+                            Final Remark
+                        </h3>
+                        <p>
+                            <?= $complainDetails->final_remark ?>
+                        </p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h3 class="h6">
+                            Date Resolved
+                        </h3>
+                        <p>
+                            <?= $complainDetails->resolved_date ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 <?php
 }
