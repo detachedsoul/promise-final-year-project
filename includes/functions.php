@@ -14,6 +14,7 @@ function sendComplain()
         $matricNumber = strtoupper($_POST['matric-number']);
         $complaintSubject = ucfirst($_POST['complaint-subject']);
         $complaint = ucfirst($_POST['complaint']);
+        $date = date("jS F, Y");
 
         // Makes sure all fields are filled
         $fields = [
@@ -43,9 +44,9 @@ function sendComplain()
         $headers .= "From: Exams and Records Unit <ojimahwisdom01@gmail.com>";
 
         if (mail($to, $subject, $message, $headers)) {
-            $sql = "INSERT INTO complains (full_name, email, matric_no, complaint_subject, complaint) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO complains (`full_name`, `email`, `matric_no`, `complaint_subject`, `complaint`, `date`) VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $con->prepare($sql);
-            $stmt->bind_param("sssss", $fullName, $email, $matricNumber, $complaintSubject, $complaint);
+            $stmt->bind_param("ssssss", $fullName, $email, $matricNumber, $complaintSubject, $complaint, $date);
             $stmt->execute();
 
             echo "<div class='alert text-bg-success text-center' role='alert'>Complaint sent successfully!</div>";
@@ -330,16 +331,11 @@ function dashboardComplains()
                         <td class="<?= ($complain->status === 'pending') ? 'text-danger' : 'text-success' ?>">
                             <?= ucwords($complain->status) ?>
                         </td>
-                        <?php
-                        if ($complain->status === 'pending') : ?>
-                            <td>
-                                <a class="btn btn-primary" href="view-complain.php?id=<?= $complain->id ?>">
-                                    View Complain
-                                </a>
-                            </td>
-                        <?php
-                        endif;
-                        ?>
+                        <td>
+                            <a class="btn btn-primary" href=<?= ($complain->status === 'pending') ? "view-complain.php?id={$complain->id}" : "view-resolved-complain-details.php?id={$complain->id}" ?>>
+                                View Complain
+                            </a>
+                        </td>
                     </tr>
                 <?php
                 endwhile;
@@ -482,6 +478,76 @@ function viewResolvedComplains()
                         <td>
                             <a class="btn btn-primary" href="view-resolved-complain-details.php?id=<?= $complain->id ?>">
                                 View Complain Details
+                            </a>
+                        </td>
+                    </tr>
+                <?php
+                endwhile;
+                ?>
+            </tbody>
+        </table>
+    </div>
+<?php
+}
+
+function viewAllComplains()
+{
+    $con = dbConnect();
+
+    $sql = "SELECT * FROM complains ORDER BY id";
+
+    $stmt = $con->query($sql);
+
+    if ($stmt->num_rows < 1) {
+        echo "<h3 class='text-center text-danger'>There are no complain(s) yet.</h3>";
+
+        return;
+    }
+?>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered align-middle" style="min-width: max-content;">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Filled By</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Matric No</th>
+                    <th scope="col">Complain Subject</th>
+                    <th scope="col">Complain</th>
+                    <th scope="col">Dated</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($complain = $stmt->fetch_object()) : ?>
+                    <tr>
+                        <th scope="row">
+                            <?= $complain->id ?>
+                        </th>
+                        <td>
+                            <?= $complain->full_name ?>
+                        </td>
+                        <td>
+                            <?= $complain->email ?>
+                        </td>
+                        <td>
+                            <?= $complain->matric_no ?>
+                        </td>
+                        <td>
+                            <?= $complain->complaint_subject ?>
+                        </td>
+                        <td>
+                            <?= substr($complain->complaint, 0, 50) ?>
+                        </td>
+                        <td>
+                            <?= $complain->date ?>
+                        </td>
+                        <td class="<?= ($complain->status === 'pending') ? 'text-danger' : 'text-success' ?>">
+                            <?= ucwords($complain->status) ?>
+                        </td>
+                        <td>
+                            <a class="btn btn-primary" href=<?= ($complain->status === 'pending') ? "view-complain.php?id={$complain->id}" : "view-resolved-complain-details.php?id={$complain->id}" ?>>
+                                View Complain
                             </a>
                         </td>
                     </tr>
