@@ -49,9 +49,7 @@
                 Complains
             </h2>
 
-            <div class="table-responsive">
-                <?= dashboardComplains() ?>
-            </div>
+            <?= dashboardComplains() ?>
         </div>
     </div>
 </div>
