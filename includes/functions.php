@@ -4,7 +4,8 @@ session_start();
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 require_once("db.php");
 
-function sendComplain() {
+function sendComplain()
+{
     $con = dbConnect();
 
     if (isset($_POST['submit-complain'])) {
@@ -22,7 +23,7 @@ function sendComplain() {
             $complaintSubject,
             $complaint
         ];
-        foreach($fields as $field) {
+        foreach ($fields as $field) {
             if (empty($field)) {
                 return "<div class='alert alert-danger text-center' role='alert'>All fields are required!</div>";
             }
@@ -51,7 +52,6 @@ function sendComplain() {
         } else {
             echo "<div class='alert alert-danger text-center' role='alert'>Complaint not sent! Please try again later</div>";
         }
-
     } else {
         echo "<div class='alert alert-info text-center'>Fill in this form to file your complain. Please be respectful in the things you say and do not send spam messages.</div>";
     }
@@ -101,10 +101,11 @@ function login()
     }
 }
 
-function register() {
+function register()
+{
     $con = dbConnect();
 
-    if(isset($_POST['register'])) {
+    if (isset($_POST['register'])) {
         $fullName = ucwords($_POST['full-name']);
         $email = strtolower($_POST['email']);
         $password = $_POST['password'];
@@ -146,7 +147,8 @@ function register() {
     }
 }
 
-function resetPassword() {
+function resetPassword()
+{
     $con = dbConnect();
 
     if (isset($_POST['reset-password'])) {
@@ -200,7 +202,8 @@ function resetPassword() {
     }
 }
 
-function countTotalComplains () {
+function countTotalComplains()
+{
     $con = dbConnect();
 
     $sql = "SELECT id FROM complains";
@@ -209,7 +212,8 @@ function countTotalComplains () {
     return $stmt->num_rows;
 }
 
-function countPendingComplains () {
+function countPendingComplains()
+{
     $con = dbConnect();
 
     $sql = "SELECT id FROM complains WHERE `status` = 'pending'";
@@ -228,7 +232,8 @@ function countResolvedComplains()
     return $stmt->num_rows;
 }
 
-function viewComplainDetails() {
+function viewComplainDetails()
+{
     $con = dbConnect();
 
     $sql = "SELECT * FROM complains WHERE `status` = 'pending'";
@@ -237,7 +242,8 @@ function viewComplainDetails() {
     return $stmt;
 }
 
-function setComplainAsResolved () {
+function setComplainAsResolved()
+{
     $con = dbConnect();
 
     if (isset($_POST['submit'])) {
@@ -277,4 +283,68 @@ function setComplainAsResolved () {
             echo "<div class='alert alert-danger text-center' role='alert'>Complaint was not resolved! Please try again later</div>";
         }
     }
+}
+
+function dashboardComplains()
+{
+    $complainCount = viewComplainDetails();
+
+    if ($complainCount->num_rows < 1) {
+        echo "<h3 class='text-center text-danger'>There are no complain(s) yet.</h3>";
+
+        return;
+    }
+?>
+    <table class="table table-striped table-hover table-bordered align-middle" style="min-width: max-content;">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Filled By</th>
+                <th scope="col">Email</th>
+                <th scope="col">Matric No</th>
+                <th scope="col">Complain Subject</th>
+                <th scope="col">Complain</th>
+                <th scope="col">Dated</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($complain = $complainCount->fetch_object()) : ?>
+                <tr>
+                    <th scope="row">
+                        <?= $complain->id ?>
+                    </th>
+                    <td>
+                        <?= $complain->full_name ?>
+                    </td>
+                    <td>
+                        <?= $complain->email ?>
+                    </td>
+                    <td>
+                        <?= $complain->matric_no ?>
+                    </td>
+                    <td>
+                        <?= $complain->complaint_subject ?>
+                    </td>
+                    <td>
+                        <?= substr($complain->complaint, 0, 50) ?>
+                    </td>
+                    <td>
+                        <?= $complain->date ?>
+                    </td>
+                    <td class="<?= ($complain->state === 'pending') ? 'text-danger' : 'text-sucess' ?>">
+                        <?= ucwords($complain->id) ?>
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" href="">
+                            View Complain
+                        </a>
+                    </td>
+                </tr>
+            <?php
+            endwhile;
+            ?>
+        </tbody>
+    </table>
+<?php
 }

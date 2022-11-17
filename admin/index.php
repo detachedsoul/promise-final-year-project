@@ -49,37 +49,9 @@
                 Complains
             </h2>
 
-            <table class="table table-striped table-hover table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Filled By</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Matric No</th>
-                        <th scope="col">Complain Subject</th>
-                        <th scope="col">Complain</th>
-                        <th scope="col">Dated</th>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                        <td>@mdo</td>
-                        <td>@mdo</td>
-                        <td>@mdo</td>
-                        <td class="text-danger">Pending</td>
-                        <td>
-                            <a class="btn btn-primary" href="">
-                                View Complain
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <?= dashboardComplains() ?>
+            </div>
         </div>
     </div>
 </div>
