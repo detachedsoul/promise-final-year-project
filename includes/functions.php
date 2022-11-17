@@ -279,7 +279,7 @@ function dashboardComplains()
 {
     $con = dbConnect();
 
-    $sql = "SELECT * FROM complains ORDER BY id LIMIT 3";
+    $sql = "SELECT * FROM complains ORDER BY id LIMIT 5";
 
     $stmt = $con->query($sql);
 
@@ -330,11 +330,16 @@ function dashboardComplains()
                         <td class="<?= ($complain->status === 'pending') ? 'text-danger' : 'text-success' ?>">
                             <?= ucwords($complain->status) ?>
                         </td>
-                        <td>
-                            <a class="btn btn-primary" href="view-complain.php?id=<?= $complain->id ?>">
-                                View Complain
-                            </a>
-                        </td>
+                        <?php
+                        if ($complain->status === 'pending') : ?>
+                            <td>
+                                <a class="btn btn-primary" href="view-complain.php?id=<?= $complain->id ?>">
+                                    View Complain
+                                </a>
+                            </td>
+                        <?php
+                        endif;
+                        ?>
                     </tr>
                 <?php
                 endwhile;
@@ -407,6 +412,76 @@ function viewPendingComplains()
                         <td>
                             <a class="btn btn-primary" href="view-complain.php?id=<?= $complain->id ?>">
                                 View Complain
+                            </a>
+                        </td>
+                    </tr>
+                <?php
+                endwhile;
+                ?>
+            </tbody>
+        </table>
+    </div>
+<?php
+}
+
+function viewResolvedComplains()
+{
+    $con = dbConnect();
+
+    $sql = "SELECT * FROM complains WHERE `status` = 'resolved'";
+
+    $stmt = $con->query($sql);
+
+    if ($stmt->num_rows < 1) {
+        echo "<h3 class='text-center text-danger'>There are no resolved complain(s) yet.</h3>";
+
+        return;
+    }
+?>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered align-middle" style="min-width: max-content;">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Filled By</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Matric No</th>
+                    <th scope="col">Complain Subject</th>
+                    <th scope="col">Complain</th>
+                    <th scope="col">Dated</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($complain = $stmt->fetch_object()) : ?>
+                    <tr>
+                        <th scope="row">
+                            <?= $complain->id ?>
+                        </th>
+                        <td>
+                            <?= $complain->full_name ?>
+                        </td>
+                        <td>
+                            <?= $complain->email ?>
+                        </td>
+                        <td>
+                            <?= $complain->matric_no ?>
+                        </td>
+                        <td>
+                            <?= $complain->complaint_subject ?>
+                        </td>
+                        <td>
+                            <?= substr($complain->complaint, 0, 50) ?>
+                        </td>
+                        <td>
+                            <?= $complain->date ?>
+                        </td>
+                        <td class="<?= ($complain->status === 'pending') ? 'text-danger' : 'text-success' ?>">
+                            <?= ucwords($complain->status) ?>
+                        </td>
+                        <td>
+                            <a class="btn btn-primary" href="view-resolved-complain-details.php?id=<?= $complain->id ?>">
+                                View Complain Details
                             </a>
                         </td>
                     </tr>
